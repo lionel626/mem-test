@@ -71,7 +71,7 @@ impl ContactStorage {
         }
 
         Some(unsafe {
-            &self.store.as_ptr().add(i).read()
+            &*self.store.as_ptr().add(i)
         })
     }
 
@@ -88,7 +88,7 @@ impl Drop for ContactStorage {
     fn drop(&mut self) {
         unsafe { 
             std::ptr::drop_in_place(std::slice::from_raw_parts_mut(self.store.as_ptr(), self.len()));
-            let layout = Layout::from_size_align_unchecked(std::mem::size_of::<Contact>(), std::mem::align_of<Contact>())
+            let layout = Layout::from_size_align_unchecked(std::mem::size_of::<Contact>(), std::mem::align_of::<Contact>());
             std::alloc::dealloc(self.store.as_ptr() as *mut u8, layout)
         };
     }
